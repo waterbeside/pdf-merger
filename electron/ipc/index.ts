@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron'
-
+import {store} from './setIpcStore'
 
 export function setIpcs() {
   // 打开选择文件夹
@@ -10,5 +10,10 @@ export function setIpcs() {
     return res
   })
 
+  ipcMain.handle('merge-pdf', async (e: any, setting: any) => {
+    const fileName = setting.fileName
+    const fileList = await store.get('file-list')
+    const savedDir = await store.get('saved-dir')
+  })
 
 }
