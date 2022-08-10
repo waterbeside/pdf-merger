@@ -11,7 +11,7 @@ import { Save20Regular, FolderOpen16Filled } from '@vicons/fluent'
 import { ref, reactive } from 'vue'
 import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
-
+import Loading from './components/Loading/index.vue'
 
     
 
@@ -20,6 +20,7 @@ const uploadRef = ref<UploadInst | null>(null)
 const savedDir = ref(localStorage.getItem('saved-dir') || '')
 const defaultSavedDir = localStorage.getItem('saved-dir')
 const saveFileName = ref<string>('')
+const loading = ref<boolean>(false)
 
 if (defaultSavedDir) {
   ipcStore('saved-dir').set(defaultSavedDir)
@@ -74,7 +75,15 @@ const removeItem = function(fileData: UploadFileInfo) {
 
 // 合并文件（点击保存）
 const save = function() {
+  loading.value = true
+  ipcRenderer.invoke('merge-pdf').then(() => {
+    window.$message.success('保存成功')
 
+  }).catch(() => {
+    window.$message.error('合并失败')
+  }).finally(() => {
+    loading.value = false
+  })
 }
 
 
@@ -84,57 +93,58 @@ const save = function() {
 <n-message-provider>
   <MessageApi/>
 </n-message-provider>
-  <div class="top-bar">
-    <div class="top-bar__left">
-      <div class="saved-dir">
-        <SelectDirBtn class="saved-dir__btn" @after-selected="selectSavedDir">
-          <template #icon>
-            <n-icon class="select-dir-btn__icon">
-              <FolderOpen16Filled />
-            </n-icon>
-          </template>
-          保存到：<input class="saved-dir__input" :value="savedDir" readonly/>
-        </SelectDirBtn>
-      </div>
-      <div class="sp"> / </div>
-      <div class="saved-name">
-        <n-input v-model:value="saveFileName" round clearable placeholder="请输入文件名" />
-      </div>
-    </div>
-
-    <div class="saved-btn">
-      <n-button type="info" round>
+<div class="top-bar">
+  <div class="top-bar__left">
+    <div class="saved-dir">
+      <SelectDirBtn class="saved-dir__btn" @after-selected="selectSavedDir">
         <template #icon>
-          <Save20Regular/>
+          <n-icon class="select-dir-btn__icon">
+            <FolderOpen16Filled />
+          </n-icon>
         </template>
-        保 存
-      </n-button>
+        保存到：<input class="saved-dir__input" :value="savedDir" readonly/>
+      </SelectDirBtn>
+    </div>
+    <div class="sp"> / </div>
+    <div class="saved-name">
+      <n-input v-model:value="saveFileName" round clearable placeholder="请输入文件名" />
     </div>
   </div>
-  <NUpload
-    class="upload-box"
-    :multiple="true"
-    directory-dnd
-    accept="application/pdf"
-    @change="uploadChange"
-    ref="uploadRef"
-  >
-    <NUploadDragger class="upload-box__inner">
-      <div class="tips">
-      <p>Drag files here</p>
-      <p>拖动文件到此处，或点击添加。</p>
-      </div>
-      <ul v-if="fileListRt.length > 0" class="file-list">
-        <template v-for="item in fileListRt" :key="item.batchId">
-          <pdf-list-item
-            :data="item"
-            @delete="removeItem"
-          >
-          </pdf-list-item>
-        </template>
-      </ul>
-    </NUploadDragger>
-  </NUpload>
+
+  <div class="saved-btn">
+    <n-button type="info" round @click="save">
+      <template #icon>
+        <Save20Regular/>
+      </template>
+      保 存
+    </n-button>
+  </div>
+</div>
+<NUpload
+  class="upload-box"
+  :multiple="true"
+  directory-dnd
+  accept="application/pdf"
+  @change="uploadChange"
+  ref="uploadRef"
+>
+  <NUploadDragger class="upload-box__inner">
+    <div class="tips">
+    <p>Drag files here</p>
+    <p>拖动文件到此处，或点击添加。</p>
+    </div>
+    <ul v-if="fileListRt.length > 0" class="file-list">
+      <template v-for="item in fileListRt" :key="item.batchId">
+        <pdf-list-item
+          :data="item"
+          @delete="removeItem"
+        >
+        </pdf-list-item>
+      </template>
+    </ul>
+  </NUploadDragger>
+</NUpload>
+<Loading :loading="loading" text="正在保存文件..."/>
 </template>
 
 <style lang="scss" scoped>
