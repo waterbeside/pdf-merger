@@ -76,9 +76,8 @@ const removeItem = function(fileData: UploadFileInfo) {
 // 合并文件（点击保存）
 const save = function() {
   loading.value = true
-  ipcRenderer.invoke('merge-pdf').then(() => {
+  ipcRenderer.invoke('merge-pdf', {fileName: saveFileName.value}).then(() => {
     window.$message.success('保存成功')
-
   }).catch(() => {
     window.$message.error('合并失败')
   }).finally(() => {
