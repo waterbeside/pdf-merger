@@ -23,7 +23,7 @@ ipcRenderer.on('show-about', () => {
       <n-icon class="icon">
         <GithubFilled />
       </n-icon>
-      <a target="_blank" href="https://github.com/waterbeside/electron-pdf-merger">Github</a>
+      <a target="_blank" href="https://github.com/waterbeside/pdf-merger">Github</a>
     </p>
   </div>
   
