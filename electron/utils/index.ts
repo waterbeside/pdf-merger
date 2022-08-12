@@ -1,9 +1,14 @@
 import { PDFDocument } from 'pdf-lib'
 import fs from 'fs'
+import { win } from '../main/index'
 
 export async function mergePdf(fileList: any[], savedPath: string) {
+  if (fileList.length === 0) throw new Error('No file to merge')
   const doc = await PDFDocument.create()
-  for (const file of fileList) {
+
+  const pr = (94 / fileList.length) >> 0
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i]
     const {path, name} = file
     const pdfBuffer = fs.readFileSync(path)
     const pdf = await PDFDocument.load(pdfBuffer); 
@@ -11,6 +16,7 @@ export async function mergePdf(fileList: any[], savedPath: string) {
     copiedPages.forEach((page) => {
       doc.addPage(page)
     }); 
+    setMainWinProgressBar(pr * (i + 1))
   }
   const buf = await doc.save();
   fs.open(savedPath, 'w', function (err, fd) {
@@ -20,4 +26,10 @@ export async function mergePdf(fileList: any[], savedPath: string) {
           })
       })
   })
+}
+
+export function setMainWinProgressBar(p: number = 0) {
+  if (win) {
+    win.setProgressBar(p)
+  }
 }
