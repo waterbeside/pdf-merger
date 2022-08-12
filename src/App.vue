@@ -86,6 +86,12 @@ const save = function() {
   })
 }
 
+// 清空文件
+const clear = function() {
+  fileListRt.value = []
+  ipcStore('file-list').set([])
+  saveFileName.value = ''
+}
 
 </script>
 
@@ -102,22 +108,28 @@ const save = function() {
             <FolderOpen16Filled />
           </n-icon>
         </template>
-        保存到：<input class="saved-dir__input" :value="savedDir" readonly/>
+        <div class="saved-dir__con" >
+          <label>保存到：</label>
+          <div class="saved-dir__input">{{savedDir}}</div>
+          <input  hidden :value="savedDir" readonly/>
+        </div>
       </SelectDirBtn>
     </div>
     <div class="sp"> / </div>
     <div class="saved-name">
-      <n-input v-model:value="saveFileName" round clearable placeholder="请输入文件名" />
+      <n-input v-model:value="saveFileName" round size="small" clearable placeholder="请输入文件名" />
     </div>
   </div>
-
-  <div class="saved-btn">
-    <n-button type="info" round @click="save">
-      <template #icon>
-        <Save20Regular/>
-      </template>
-      保 存
-    </n-button>
+  <div class="top-bar__right">
+    <n-button type="info" round secondary @click="clear">清空</n-button>
+    <div class="saved-btn">
+      <n-button type="primary" round @click="save" size="small">
+        <template #icon>
+          <Save20Regular/>
+        </template>
+        保 存
+      </n-button>
+    </div>
   </div>
 </div>
 <NUpload
@@ -149,7 +161,7 @@ const save = function() {
 </template>
 
 <style lang="scss" scoped>
-$topbar-height: 74px;
+$topbar-height: 60px;
 body {
   background-color: #292c32;
 }
@@ -185,24 +197,50 @@ body {
       padding: 0 12px;
     }
   }
+  &__right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    .saved-btn {
+      margin-left: 12px;
+    }
+  }
   
 }
 .saved-dir {
+  box-sizing: border-box;
+  height: 28px;
   border: 1px solid #ccc;
   border-radius: 40px;
-  padding: 4px 12px;
+  padding: 2px 8px;
   background-color: #fff;
+  min-width: 200px;
+  overflow: hidden;
+  &__btn {
+    width: 100%;
+  }
   &__input {
     border: none;
-    min-width: 200px;
+    display: block;
+    overflow-x: auto;
+    flex-grow: 1;
+    white-space: nowrap;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
-}
-
-.saved-name {
-}
-
-.save-btn {
-
+  &__con {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    // min-width: 160px;
+    label {
+      min-width:60px;
+      display: inline-block;
+    }
+  }
 }
 
 .upload-box {
