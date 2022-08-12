@@ -1,8 +1,9 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, Menu } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
 import { setIpcs } from '../ipc'
 import { setIpcStore } from '../ipc/setIpcStore'
+import { menu } from './menu'
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -66,6 +67,8 @@ async function createWindow() {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
+
+  win.setMenu(menu)
 }
 
 app.whenReady().then(createWindow)
@@ -111,3 +114,6 @@ ipcMain.handle('open-win', (event, arg) => {
 
 setIpcs()
 setIpcStore()
+
+
+export { win }

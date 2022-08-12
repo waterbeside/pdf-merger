@@ -12,6 +12,7 @@ import { ref, reactive } from 'vue'
 import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
+import About from './components/About/index.vue'
 
     
 
@@ -144,6 +145,7 @@ const save = function() {
   </NUploadDragger>
 </NUpload>
 <Loading :loading="loading" text="正在保存文件..."/>
+<About/>
 </template>
 
 <style lang="scss" scoped>
