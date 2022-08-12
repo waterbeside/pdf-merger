@@ -37,6 +37,10 @@ const indexHtml = join(ROOT_PATH.dist, 'index.html')
 
 async function createWindow() {
   win = new BrowserWindow({
+    width: 1024,
+    height: 700,
+    minWidth: 800,
+    minHeight: 700,
     title: 'Main window',
     icon: join(ROOT_PATH.public, 'favicon.ico'),
     webPreferences: {
