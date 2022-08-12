@@ -37,7 +37,8 @@
       const dirValue = ref(props.value)
       // watch
       watch(dirValue, (val) => {
-        ctx.emit('update:value', val)
+        if (val) ctx.emit('update:value', val)
+        console.log('watch select-dir', val)
       })
       // computed
       const isNoSlot = computed(() => {
@@ -51,8 +52,8 @@
         ipcRenderer.invoke('open-directory-dialog').then((res: any) => {
           if (!res.canceled) {
             dirValue.value = res.filePaths[0]
+            ctx.emit('after-selected', res)
           }
-          ctx.emit('after-selected', res)
         })
       }
 
@@ -67,7 +68,7 @@
 
 <style lang="scss" scoped>
   .select-dir-btn {
-    display: inline-block;
+    display: inline-flex;
     cursor: pointer;
     color: #666;
     &__icon {
