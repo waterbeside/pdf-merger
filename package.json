@@ -37,6 +37,7 @@
     "vue"
   ],
   "dependencies": {
+    "@vicons/antd": "^0.12.0",
     "@vicons/fluent": "^0.12.0",
     "naive-ui": "^2.32.1",
     "pdf-lib": "^1.17.1"
