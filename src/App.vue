@@ -3,7 +3,7 @@
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 // import HelloWorld from './components/HelloWorld.vue'
 import ipcStore from './utils/ipcStore'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, shell } from 'electron'
 import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, useMessage } from 'naive-ui'
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
@@ -13,6 +13,8 @@ import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
 import About from './components/About/index.vue'
+import fs from 'fs'
+import path from 'path'
 
     
 
@@ -76,6 +78,10 @@ const removeItem = function(fileData: UploadFileInfo) {
 
 // 合并文件（点击保存）
 const save = function() {
+  if (fileListRt.value.length < 2) {
+    window.$message.warning('最少需要两个文件')
+    return
+  }
   loading.value = true
   ipcRenderer.invoke('merge-pdf', {fileName: saveFileName.value}).then(() => {
     window.$message.success('保存成功')
@@ -91,6 +97,16 @@ const clear = function() {
   fileListRt.value = []
   ipcStore('file-list').set([])
   saveFileName.value = ''
+}
+
+// 打开目录
+const showDir = function () {
+  const fullPath = path.join(savedDir.value, saveFileName.value)
+  if (fs.existsSync(fullPath)) {
+    shell.showItemInFolder(fullPath)
+    return
+  }
+  shell.openPath(savedDir.value)
 }
 
 </script>
@@ -121,7 +137,9 @@ const clear = function() {
     </div>
   </div>
   <div class="top-bar__right">
-    <n-button type="info" round secondary @click="clear">清空</n-button>
+    
+    <n-button class="btn" type="info" round secondary @click="showDir" size="small">打开目录</n-button>
+    <n-button class="btn" type="info" round secondary @click="clear" size="small">清空</n-button>
     <div class="saved-btn">
       <n-button type="primary" round @click="save" size="small">
         <template #icon>
@@ -203,8 +221,8 @@ body {
     align-items: center;
     justify-content: flex-end;
     flex: 1;
-    .saved-btn {
-      margin-left: 12px;
+    .btn {
+      margin-right: 8px;
     }
   }
   
