@@ -8,7 +8,7 @@ import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, useM
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
 import { Save20Regular, FolderOpen16Filled } from '@vicons/fluent'
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
