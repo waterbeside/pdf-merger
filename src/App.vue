@@ -78,6 +78,10 @@ const removeItem = function(fileData: UploadFileInfo) {
 
 // 合并文件（点击保存）
 const save = function() {
+  if (savedDir.value === '') {
+    window.$message.warning('请选择保存目录')
+    return
+  }
   if (fileListRt.value.length < 2) {
     window.$message.warning('最少需要两个文件')
     return
@@ -235,6 +239,7 @@ body {
   padding: 2px 8px;
   background-color: #fff;
   min-width: 200px;
+  max-width: 300px;
   overflow: hidden;
   &__btn {
     width: 100%;
