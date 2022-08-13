@@ -2,21 +2,23 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  "appId": "YourAppID",
+  "appId": "com.github.waterbeside.pdf-merger",
   "asar": true,
   "directories": {
-    "output": "release/${version}"
+    "output": "release"
   },
   "files": [
     "dist"
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
+    "icon": "./src/assets/logo@350.png",
     "target": [
       "dmg"
     ]
   },
   "win": {
+    "icon": "./src/assets/logo@350.png",
     "target": [
       {
         "target": "nsis",

@@ -1,6 +1,6 @@
 {
   "name": "pdf-merger",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/electron/main/index.js",
   "description": "Really simple Electron + Vue + Vite boilerplate.",
   "author": "Natron Kan",
@@ -42,36 +42,5 @@
     "naive-ui": "^2.32.1",
     "pdf-lib": "^1.17.1",
     "tslib": "^2.4.0"
-  },
-  "build": {
-    "appId": "com.github.waterbeside.pdf-merger",
-    "directories": {
-      "output": "release"
-    },
-    "electronDownload": {
-      "mirror": "https://npm.taobao.org/mirrors/electron/"
-    },
-    "files": [
-      "dist/**"
-    ],
-    "mac": {
-      "artifactName": "${productName}_setup_${version}.${ext}",
-      "icon": "./src/assets/logo@350.png",
-      "target": [
-        "dmg"
-      ]
-    },
-    "win": {
-      "icon": "./src/assets/logo@350.png",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "artifactName": "${productName}_setup_${version}.${ext}"
-    }
   }
 }
