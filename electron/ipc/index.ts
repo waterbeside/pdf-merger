@@ -1,6 +1,7 @@
 import { dialog, ipcMain } from 'electron'
 import { store } from './setIpcStore'
 import { mergePdf, setMainWinProgressBar } from '../utils'
+import { win } from '../main'
 
 export function setIpcs() {
   // 打开选择文件夹
@@ -35,4 +36,17 @@ export function setIpcs() {
     }
   })
 
+  // blue win
+  ipcMain.on('mainwin-size', async (e: any, setting: any) => {
+    if (!win || !setting) return
+    if (setting.action === 'hide') win.hide()
+    else if (setting.action === 'show') win.show()
+    else if (setting.action === 'maximize') win.maximize()
+    else if (setting.action === 'unmaximize') win.unmaximize()
+    else if (setting.action === 'minimize') win.minimize()
+    else if (setting.action === 'restore') win.restore()
+    else if (setting.action === 'close') win.close()
+    else if (setting.action === 'blur') win.blur()
+    else if (setting.action === 'focus') win.focus()
+  })
 }
