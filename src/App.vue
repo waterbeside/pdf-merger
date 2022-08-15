@@ -7,7 +7,8 @@ import { ipcRenderer, shell } from 'electron'
 import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, useMessage } from 'naive-ui'
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
-import { Save20Regular, FolderOpen16Filled } from '@vicons/fluent'
+import { Save20Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
+import { FileFilled, FolderOpenFilled } from '@vicons/antd'
 import { ref } from 'vue'
 import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
@@ -15,6 +16,7 @@ import Loading from './components/Loading/index.vue'
 import About from './components/About/index.vue'
 import fs from 'fs'
 import path from 'path'
+import { debounce } from './utils'
 
     
 
@@ -77,7 +79,7 @@ const removeItem = function(fileData: UploadFileInfo) {
 }
 
 // 合并文件（点击保存）
-const save = function() {
+const save = debounce(function () {
   if (savedDir.value === '') {
     window.$message.warning('请选择保存目录')
     return
@@ -94,7 +96,7 @@ const save = function() {
   }).finally(() => {
     loading.value = false
   })
-}
+}, 300)
 
 // 清空文件
 const clear = function() {
@@ -104,14 +106,23 @@ const clear = function() {
 }
 
 // 打开目录
-const showDir = function () {
+const showDir = debounce(function () {
   const fullPath = path.join(savedDir.value, saveFileName.value)
-  if (fs.existsSync(fullPath)) {
-    shell.showItemInFolder(fullPath)
-    return
-  }
-  shell.openPath(savedDir.value)
-}
+  if (saveFileName.value && fs.existsSync(fullPath)) shell.showItemInFolder(fullPath) // shell.showItemInFolder(fullPath)
+  else shell.openPath(savedDir.value)
+}, 300)
+
+// 打开文件
+const openFile = debounce(function () {
+  const fullPath = path.join(savedDir.value, saveFileName.value)
+  if (saveFileName.value && fs.existsSync(fullPath)) shell.openPath(fullPath) // shell.showItemInFolder(fullPath)
+  else window.$message.error('文件不存在')
+  // setTimeout(() => {
+  //   ipcRenderer.send('mainwin-size', {action: 'blur'})
+  // }, 500)
+}, 300)
+
+
 
 </script>
 
@@ -142,12 +153,34 @@ const showDir = function () {
   </div>
   <div class="top-bar__right">
     
-    <n-button class="btn" type="info" round secondary @click="showDir" size="small">打开目录</n-button>
-    <n-button class="btn" type="info" round secondary @click="clear" size="small">清空</n-button>
+    <n-button class="btn"  circle strong secondary size="small" color="rgb(195, 226, 251)" @click="showDir" >
+      <template #icon>
+        <n-icon>
+          <FolderOpenFilled /> 
+        </n-icon>
+      </template>
+    </n-button>
+    <n-button class="btn"   circle secondary size="small" color="rgb(195, 226, 251)" @click="openFile" >
+      <template #icon>
+        <n-icon>
+          <FileFilled /> 
+        </n-icon>
+      </template>
+    </n-button>
+    <n-button class="btn"  circle secondary size="small" color="rgb(195, 226, 251)" @click="clear" >
+      <template #icon>
+        <n-icon>
+          <Delete16Filled /> 
+        </n-icon>
+      </template>
+    </n-button>
+    
     <div class="saved-btn">
       <n-button type="primary" round @click="save" size="small">
         <template #icon>
-          <Save20Regular/>
+          <n-icon>
+            <Save20Filled/>
+          </n-icon>
         </template>
         保 存
       </n-button>
