@@ -4,7 +4,7 @@
 // import HelloWorld from './components/HelloWorld.vue'
 import ipcStore from './utils/ipcStore'
 import { ipcRenderer, shell } from 'electron'
-import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, useMessage } from 'naive-ui'
+import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, NTooltip } from 'naive-ui'
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
 import { Save20Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
@@ -14,6 +14,7 @@ import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
 import About from './components/About/index.vue'
+import TopbarBtn from './components/TopbarBtn/index.vue'
 import fs from 'fs'
 import path from 'path'
 import { debounce } from './utils'
@@ -152,29 +153,10 @@ const openFile = debounce(function () {
     </div>
   </div>
   <div class="top-bar__right">
-    
-    <n-button class="btn"  circle strong secondary size="small" color="rgb(195, 226, 251)" @click="showDir" >
-      <template #icon>
-        <n-icon>
-          <FolderOpenFilled /> 
-        </n-icon>
-      </template>
-    </n-button>
-    <n-button class="btn"   circle secondary size="small" color="rgb(195, 226, 251)" @click="openFile" >
-      <template #icon>
-        <n-icon>
-          <FileFilled /> 
-        </n-icon>
-      </template>
-    </n-button>
-    <n-button class="btn"  circle secondary size="small" color="rgb(195, 226, 251)" @click="clear" >
-      <template #icon>
-        <n-icon>
-          <Delete16Filled /> 
-        </n-icon>
-      </template>
-    </n-button>
-    
+    <topbar-btn @click="showDir" tooltipText="打开文件夹"><FolderOpenFilled /></topbar-btn>
+    <topbar-btn @click="openFile" tooltipText="打开文件"><FileFilled /></topbar-btn>
+    <topbar-btn @click="clear" tooltipText="清空文件"><Delete16Filled /></topbar-btn>
+
     <div class="saved-btn">
       <n-button type="primary" round @click="save" size="small">
         <template #icon>
@@ -258,7 +240,7 @@ body {
     align-items: center;
     justify-content: flex-end;
     flex: 1;
-    .btn {
+    :deep(.btn) {
       margin-right: 8px;
     }
   }
