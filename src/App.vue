@@ -4,11 +4,18 @@
 // import HelloWorld from './components/HelloWorld.vue'
 import ipcStore from './utils/ipcStore'
 import { ipcRenderer, shell } from 'electron'
-import { NUpload, NUploadDragger, NButton, NIcon, NInput, NMessageProvider, NTooltip } from 'naive-ui'
+import { 
+  NUpload,
+  NButton, 
+  NIcon,
+  NInput,
+  NMessageProvider,
+  } from 'naive-ui'
+import NUploadTrigger from 'naive-ui/es/Upload/src/UploadTrigger.js'
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
 import { Save20Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
-import { FileFilled, FolderOpenFilled } from '@vicons/antd'
+import { FileFilled, FolderOpenFilled, PlusOutlined } from '@vicons/antd'
 import { ref } from 'vue'
 import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
@@ -34,7 +41,7 @@ if (defaultSavedDir) {
 
 // 上传pdf文件
 const uploadChange = function(options: any) {
-  const { file, fileList  } = options
+  const { file  } = options
   const oldList = fileListRt.value
   // let reader = new window.FileReader()
   // re
@@ -51,10 +58,9 @@ const uploadChange = function(options: any) {
     }
     oldList.push(file)
     fileListRt.value = oldList
-    ipcStore('file-list').set(fileListRt.value.map((item: UploadFileInfo) => ({
+    ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
       name: item.name,
-      path: item.file?.path,
-      id: item.id
+      path: item.file?.path || item?.path,
     })))
   } else {
     window.$message.error(`${file.name} 不是一个有效的pdf文件`)
@@ -72,10 +78,10 @@ const selectSavedDir = function(res: any) {
 // 移除文件
 const removeItem = function(fileData: UploadFileInfo) {
   fileListRt.value = fileListRt.value.filter(item => item.id !== fileData.id)
-  ipcStore('file-list').set(fileListRt.value.map((item: UploadFileInfo) => ({
+  ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
     name: item.name,
-    path: item.file?.path,
-    id: item.id
+    path: item.file?.path || item?.path,
+    id: item.id,
   })))
 }
 
@@ -124,6 +130,26 @@ const openFile = debounce(function () {
 }, 300)
 
 
+const drop = function (e: any) {
+  e.preventDefault
+  e.stopPropagation()
+  const files = e.dataTransfer.files
+  for (const file of files) {
+    const fileInfo = {
+      name: file.name,
+      file,
+      id: Math.random(),
+      type: file.type,
+    }
+    uploadChange({file: fileInfo})
+  }
+}
+
+const dragover = function (e: any) {
+  e.preventDefault()
+  e.stopPropagation()
+}
+
 
 </script>
 
@@ -169,30 +195,51 @@ const openFile = debounce(function () {
     </div>
   </div>
 </div>
-<NUpload
+
+<n-upload
   class="upload-box"
   :multiple="true"
-  directory-dnd
   accept="application/pdf"
   @change="uploadChange"
   ref="uploadRef"
+  directory-dnd
+  abstract
 >
-  <NUploadDragger class="upload-box__inner">
-    <div class="tips">
-    <p>Drag files here</p>
-    <p>拖动文件到此处，或点击添加。</p>
-    </div>
-    <ul v-if="fileListRt.length > 0" class="file-list">
-      <template v-for="item in fileListRt" :key="item.batchId">
-        <pdf-list-item
-          :data="item"
-          @delete="removeItem"
+
+  <div class="upload-box__outer">
+    <n-upload-trigger #="opt" abstract>
+        <div
+          class="drager-area n-upload-trigger"
         >
-        </pdf-list-item>
-      </template>
-    </ul>
-  </NUploadDragger>
-</NUpload>
+        <!-- <div
+          class="drager-area n-upload-trigger"
+          dropable
+          @drop="opt.handleDrop"
+          @dragover="opt.handleDragOver" 
+          @dragenter="opt.handleDragEnter"
+          @dragleave="opt.handleDragLeave"
+        > -->
+          <ul class="file-list"  dropable @drop="drop" @dragover="dragover">
+            <template v-for="item in fileListRt" :key="item.batchId">
+              <pdf-list-item
+                :data="item"
+                @delete="removeItem"
+              >
+              </pdf-list-item>
+            </template>
+            <li>
+            <div class="upload-btn" @click="opt.handleClick">
+              <div class="upload-btn__icon">
+                <n-icon><PlusOutlined /></n-icon>
+              </div>
+              <p>添加文件</p>
+            </div>
+            </li>
+          </ul>
+        </div>
+    </n-upload-trigger>
+  </div>
+</n-upload>
 <Loading :loading="loading" text="正在保存文件..."/>
 <About/>
 </template>
@@ -280,43 +327,71 @@ body {
     }
   }
 }
-
-.upload-box {
+.upload-box__outer {
+  overflow-x: hidden;
+  overflow-y: auto;
   height: 100vh;
   width: 100%;
+  padding-top: $topbar-height + 20px;
+  display: flex;
+  box-sizing: border-box;
+  background-color: #292c32;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
   :deep(.n-upload-trigger) {
     display: flex;
     width: 100%;
     flex-grow: 1;
     height: 100%;
   }
-  :deep(.n-upload-file-list) {
-    display: none;
+  .drager-area {
+    width: 100%;
+    flex: 1;
+    box-sizing: border-box;
   }
-  
-  &__inner {
-    padding-top: $topbar-height + 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-grow: 1;
-    background-color: #292c32;
-    border: none;
-    color: #fff;
-    .tips {
-      padding: 20px;
-      font-size: 14px;
-      color: #999;
-      line-height: 1.2;
+  .upload-btn {
+    
+    float: left;
+    margin-left: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    &__icon {
+      margin-top: 7px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      border: 1px dashed rgba(255, 255, 255, 0.4);;
+      border-radius: 5px;
+      font-size: 30px;
+      background: rgba(255, 255, 255, 0.1);
     }
-    .file-list {
-      width: 100%;
-      &__item {
-        float: left;
-        width: 120px;
-      }
+    p {
+      padding: 3px 0;
+      margin: 0;
     }
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .file-list {
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    &__item {
+      float: left;
+      width: 120px;
+      margin-right: 30px;
+
+    }
+
   }
 }
+
+
 
 </style>
