@@ -18,7 +18,7 @@ ipcRenderer.on('show-about', () => {
     <div>About</div>
   </template>
   <div class="content">
-    <p>Electron-pdf-merger @0.0.1</p>
+    <p>Electron-pdf-merger @0.0.5</p>
     <p>
       <n-icon class="icon">
         <GithubFilled />
