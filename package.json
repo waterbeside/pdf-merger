@@ -1,8 +1,8 @@
 {
   "name": "pdf-merger",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/electron/main/index.js",
-  "description": "Really simple Electron + Vue + Vite boilerplate.",
+  "description": "A simple electron app to merge pdfs",
   "author": "Natron Kan",
   "license": "MIT",
   "private": true,
