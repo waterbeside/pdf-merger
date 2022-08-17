@@ -1,13 +1,33 @@
 <script setup lang="ts">
 import { NModal, NIcon } from 'naive-ui'
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import { ipcRenderer } from 'electron'
 import { GithubFilled } from '@vicons/antd'
+import pkg from '../../../package.json'
 
-const showModal = ref<boolean>(false)
+const props = defineProps({
+  show: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['update:show'])
+
+const showModal = ref<boolean>(props.show)
+const version = ref<string>(pkg.version)
+
+watch(showModal, (val) => {
+  emit('update:show', val)
+})
+
+watch(() => props.show, (val) => {
+  showModal.value = val
+})
 
 ipcRenderer.on('show-about', () => {
-  showModal.value = true
+  // showModal.value = true
+  emit('update:show', true)
 })
 
 </script>
@@ -18,7 +38,7 @@ ipcRenderer.on('show-about', () => {
     <div>About</div>
   </template>
   <div class="content">
-    <p>Electron-pdf-merger @0.0.5</p>
+    <p>PDF-Merger @{{version}}</p>
     <p>
       <n-icon class="icon">
         <GithubFilled />

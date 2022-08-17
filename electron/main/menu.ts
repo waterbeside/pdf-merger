@@ -1,5 +1,5 @@
 import { Menu, shell, ipcMain } from 'electron'
-import { win } from './index'
+import wins from '../wins'
 
 const template = [
   {
@@ -8,7 +8,7 @@ const template = [
       {
         label: '关于',
         click: () => {
-          if (win) win.webContents.send('show-about')
+          if (wins.mainwin) wins.mainwin.webContents.send('show-about')
         }
       }
     ]

@@ -1,9 +1,12 @@
 import { dialog, ipcMain } from 'electron'
 import { store } from './setIpcStore'
 import { mergePdf, setMainWinProgressBar } from '../utils'
-import { win } from '../main'
+import wins from '../wins'
+import path from 'path'
+import { WIN_WIDTH, WIN_HEIGHT } from '../const'
 
 export function setIpcs() {
+  
   // 打开选择文件夹
   ipcMain.handle('open-directory-dialog', async (e: any, setting: any) => {
     const defaultSetting = { properties: ['openDirectory'] }
@@ -18,7 +21,7 @@ export function setIpcs() {
     const fileName = setting.fileName
     const fileList = await <StoredFileListItem[]>store.get('file-list')
     const savedDir = await <string>store.get('saved-dir')
-    const savedPath = savedDir + '/' + fileName
+    const savedPath = path.join(savedDir, fileName)
     try {
       await mergePdf(fileList, savedPath)
       setMainWinProgressBar(-1)
@@ -38,15 +41,34 @@ export function setIpcs() {
 
   // blue win
   ipcMain.on('mainwin-size', async (e: any, setting: any) => {
-    if (!win || !setting) return
-    if (setting.action === 'hide') win.hide()
-    else if (setting.action === 'show') win.show()
-    else if (setting.action === 'maximize') win.maximize()
-    else if (setting.action === 'unmaximize') win.unmaximize()
-    else if (setting.action === 'minimize') win.minimize()
-    else if (setting.action === 'restore') win.restore()
-    else if (setting.action === 'close') win.close()
-    else if (setting.action === 'blur') win.blur()
-    else if (setting.action === 'focus') win.focus()
+    if (!wins.mainwin || !setting) return
+    if (setting.action === 'hide') wins.mainwin.hide()
+    else if (setting.action === 'show') wins.mainwin.show()
+    else if (setting.action === 'maximize') wins.mainwin.maximize()
+    else if (setting.action === 'unmaximize') wins.mainwin.unmaximize()
+    else if (setting.action === 'minimize') wins.mainwin.minimize()
+    else if (setting.action === 'restore') wins.mainwin.restore()
+    else if (setting.action === 'close') wins.mainwin.close()
+    else if (setting.action === 'blur') wins.mainwin.blur()
+    else if (setting.action === 'focus') wins.mainwin.focus()
+  })
+
+  ipcMain.on('mainwin-isMaximized', async (e: any, setting: any) => {
+    if (!wins.mainwin) {
+      e.returnValue = false
+    } else {
+      e.returnValue = wins.mainwin.isMaximized()
+    }
+  })
+
+  ipcMain.on('mainwin-move', async (e: any, setting: any) => {
+    // wins.mainwin && wins.mainwin.setPosition(setting.x, setting.y)
+    const bounds = {
+      x: setting.x,
+      y: setting.y,
+      width: WIN_WIDTH,
+      height: WIN_HEIGHT
+    }
+    wins.mainwin && wins.mainwin.setBounds(bounds)
   })
 }

@@ -22,6 +22,7 @@ import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
 import About from './components/About/index.vue'
 import TopbarBtn from './components/TopbarBtn/index.vue'
+import TitleBar from './components/TitleBar/index.vue'
 import fs from 'fs'
 import path from 'path'
 import { debounce } from './utils'
@@ -30,10 +31,12 @@ import { debounce } from './utils'
 
 const fileListRt = ref<UploadFileInfo[]>([])
 const uploadRef = ref<UploadInst | null>(null)
-const savedDir = ref(localStorage.getItem('saved-dir') || '')
 const defaultSavedDir = localStorage.getItem('saved-dir')
+const savedDir = ref(defaultSavedDir || '')
+
 const saveFileName = ref<string>('')
 const loading = ref<boolean>(false)
+const isShowAbout = ref<boolean>(false)
 
 if (defaultSavedDir) {
   ipcStore('saved-dir').set(defaultSavedDir)
@@ -150,6 +153,9 @@ const dragover = function (e: any) {
   e.stopPropagation()
 }
 
+const showAbout = function() {
+  isShowAbout.value = true
+}
 
 </script>
 
@@ -157,6 +163,7 @@ const dragover = function (e: any) {
 <n-message-provider>
   <MessageApi/>
 </n-message-provider>
+<title-bar @click-about="showAbout"></title-bar>
 <div class="top-bar">
   <div class="top-bar__left">
     <div class="saved-dir">
@@ -208,17 +215,7 @@ const dragover = function (e: any) {
 
   <div class="upload-box__outer">
     <n-upload-trigger #="opt" abstract>
-        <div
-          class="drager-area n-upload-trigger"
-        >
-        <!-- <div
-          class="drager-area n-upload-trigger"
-          dropable
-          @drop="opt.handleDrop"
-          @dragover="opt.handleDragOver" 
-          @dragenter="opt.handleDragEnter"
-          @dragleave="opt.handleDragLeave"
-        > -->
+        <div class="drager-area n-upload-trigger">
           <ul class="file-list"  dropable @drop="drop" @dragover="dragover">
             <template v-for="item in fileListRt" :key="item.batchId">
               <pdf-list-item
@@ -241,11 +238,12 @@ const dragover = function (e: any) {
   </div>
 </n-upload>
 <Loading :loading="loading" text="正在保存文件..."/>
-<About/>
+<About v-model:show="isShowAbout" />
 </template>
 
 <style lang="scss" scoped>
 $topbar-height: 60px;
+$titlebar-height: 30px;
 body {
   background-color: #292c32;
 }
@@ -265,6 +263,7 @@ body {
   height: $topbar-height;
   width: 100%;
   padding: 0 12px;
+  top: $titlebar-height;
   // border-bottom: 1px solid #ccc;
   position: fixed;
   z-index:  100;
@@ -332,7 +331,7 @@ body {
   overflow-y: auto;
   height: 100vh;
   width: 100%;
-  padding-top: $topbar-height + 20px;
+  padding-top: $topbar-height + $titlebar-height + 20px;
   display: flex;
   box-sizing: border-box;
   background-color: #292c32;

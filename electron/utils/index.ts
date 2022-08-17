@@ -1,6 +1,6 @@
 import { PDFDocument } from 'pdf-lib'
 import fs from 'fs'
-import { win } from '../main/index'
+import wins from '../wins'
 
 export async function mergePdf(fileList: any[], savedPath: string) {
   if (fileList.length === 0) throw new Error('No file to merge')
@@ -19,17 +19,20 @@ export async function mergePdf(fileList: any[], savedPath: string) {
     setMainWinProgressBar(pr * (i + 1))
   }
   const buf = await doc.save();
-  fs.open(savedPath, 'w', function (err, fd) {
-      fs.write(fd, buf, 0, buf.length, null, function (err) {
-          fs.close(fd, function () {
-              console.log('wrote the file successfully')
-          })
-      })
+  fs.writeFile(savedPath, buf, {flag: 'w'}, err => {
+    console.log('wrote the file successfully')
   })
+  // fs.open(savedPath, 'w', function (err, fd) {
+  //     fs.write(fd, buf, 0, buf.length, null, function (err) {
+  //         fs.close(fd, function () {
+  //             console.log('wrote the file successfully')
+  //         })
+  //     })
+  // })
 }
 
 export function setMainWinProgressBar(p: number = 0) {
-  if (win) {
-    win.setProgressBar(p)
+  if (wins.mainwin) {
+    wins.mainwin.setProgressBar(p)
   }
 }
