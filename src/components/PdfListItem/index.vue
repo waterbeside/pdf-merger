@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Dismiss32Filled } from '@vicons/fluent'
 import { NIcon } from 'naive-ui'
+import { shell } from 'electron'
 const props = defineProps<{ data: any }>()
 const emit = defineEmits(['click', 'delete'])
 
@@ -11,10 +12,14 @@ function clickItem() {
 function remove() {
   emit('delete', props.data)
 }
+
+function openFile(filePath: string) {
+  shell.openPath(filePath)
+}
 </script>
 
 <template>
-  <li class="file-list__item" :title="data.name" @click.stop="clickItem">
+  <li class="file-list__item" :title="data.name" @click.stop="clickItem" @dblclick.stop="openFile(data.file.path)">
     <div class="icon">
       <img src="../../assets/pdf.png">
     </div>
@@ -66,8 +71,8 @@ function remove() {
     padding: 2px;
     border-radius: 50%;
     font-size: 14px;
-
     background-color: rgba(0,0,0,0.4);
     color: #fff;
+    cursor: pointer;
   }
 </style>
