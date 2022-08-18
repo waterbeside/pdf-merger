@@ -47,10 +47,10 @@ const uploadChange = function(options: any) {
     }
     oldList.push(file)
     fileListRt.value = oldList
-    console.log('fileListRt', fileListRt.value)
     ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
       name: item.name,
       path: item.file?.path || item?.path,
+      id: item.id
     })))
     emit('update:files', oldList)
     
@@ -110,6 +110,11 @@ const handleDragend = function (item: UploadFileInfo) {
   newList.splice(sourceIdx, 1)
   newList.splice(targetIdx, 0, item)
   fileListRt.value = newList
+  ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
+    name: item.name,
+    path: item.file?.path || item?.path,
+    id: item.id,
+  })))
   emit('update:files', newList)
   dragItemTarget.value = null
 }
