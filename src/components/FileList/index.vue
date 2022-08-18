@@ -29,6 +29,7 @@ watch(() => props.files, (val) => {
 
 // 上传pdf文件
 const uploadChange = function(options: any) {
+  if (dragItemTarget.value) return
   const { file  } = options
   const oldList = fileListRt.value
   // let reader = new window.FileReader()
@@ -38,12 +39,9 @@ const uploadChange = function(options: any) {
     window.$message.warning(`${file.name} 已经存在于列表中`)
 
     uploadRef.value?.clear()
-    console.log('111')
     return
   }
   if (file.type === 'application/pdf') {
-    console.log('222')
-
     if (oldList.length === 0 || props.saveFileName === '') {
       emit('update:saveFileName', 'merged_' + file.name)
     }
@@ -72,6 +70,8 @@ const removeItem = function(fileData: UploadFileInfo) {
   })))
 }
 
+
+// 拖动添加文件
 const drop = function (e: any) {
   e.preventDefault
   e.stopPropagation()
@@ -92,7 +92,31 @@ const dragover = function (e: any) {
   e.stopPropagation()
 }
 
+// 拖动排序
+const dragItemTarget = ref<any>(null)
+const handleDragend = function (item: UploadFileInfo) {
+  if (!dragItemTarget.value ) return
+  let targetIdx = -1
+  let sourceIdx = -1
+  for (let i = 0; i < fileListRt.value.length; i++) {
+    if (fileListRt.value[i].id === dragItemTarget.value.id) {
+      targetIdx = i
+    }
+    if (fileListRt.value[i].id === item.id) {
+      sourceIdx = i
+    }
+  }
+  const newList = [...fileListRt.value]
+  newList.splice(sourceIdx, 1)
+  newList.splice(targetIdx, 0, item)
+  fileListRt.value = newList
+  emit('update:files', newList)
+  dragItemTarget.value = null
+}
 
+const handleDragenter = function (item: UploadFileInfo) {
+  dragItemTarget.value = item
+}
 
 </script>
 
@@ -116,6 +140,8 @@ const dragover = function (e: any) {
                 <pdf-list-item
                   :data="item"
                   @delete="removeItem"
+                  @dragend.stop.prevent="handleDragend(item)"
+                  @dragenter.stop.prevent="handleDragenter(item)"
                 >
                 </pdf-list-item>
               </template>
