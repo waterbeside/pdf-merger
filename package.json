@@ -1,10 +1,10 @@
 {
   "name": "pdf-merger",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "main": "dist/electron/main/index.js",
   "description": "A simple electron app to merge pdfs",
   "author": "Natron Kan",
-  "license": "MIT",
+  "license": "Apache License 2.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -31,7 +31,8 @@
   },
   "keywords": [
     "electron",
-    "rollup",
+    "pdf",
+    "merge",
     "vite",
     "vue3",
     "vue"
