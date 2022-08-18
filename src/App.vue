@@ -1,36 +1,30 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-// import HelloWorld from './components/HelloWorld.vue'
 import ipcStore from './utils/ipcStore'
 import { ipcRenderer, shell } from 'electron'
 import { 
-  NUpload,
   NButton, 
   NIcon,
   NInput,
   NMessageProvider,
   } from 'naive-ui'
-import NUploadTrigger from 'naive-ui/es/Upload/src/UploadTrigger.js'
-import type { UploadFileInfo, UploadInst } from 'naive-ui'
+import type { UploadFileInfo } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
 import { Save20Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
-import { FileFilled, FolderOpenFilled, PlusOutlined } from '@vicons/antd'
+import { FileFilled, FolderOpenFilled } from '@vicons/antd'
 import { ref } from 'vue'
-import PdfListItem from './components/PdfListItem/index.vue'
 import MessageApi from './components/MessageApi.vue'
 import Loading from './components/Loading/index.vue'
 import About from './components/About/index.vue'
 import TopbarBtn from './components/TopbarBtn/index.vue'
 import TitleBar from './components/TitleBar/index.vue'
+import MyFileList from './components/FileList/index.vue'
 import fs from 'fs'
 import path from 'path'
 import { debounce } from './utils'
 
-    
-
 const fileListRt = ref<UploadFileInfo[]>([])
-const uploadRef = ref<UploadInst | null>(null)
 const defaultSavedDir = localStorage.getItem('saved-dir')
 const savedDir = ref(defaultSavedDir || '')
 
@@ -42,33 +36,6 @@ if (defaultSavedDir) {
   ipcStore('saved-dir').set(defaultSavedDir)
 }
 
-// 上传pdf文件
-const uploadChange = function(options: any) {
-  const { file  } = options
-  const oldList = fileListRt.value
-  // let reader = new window.FileReader()
-  // re
-  const isInList = oldList.some((item: any) => item.file.path === file.file.path)
-  if (isInList) {
-    window.$message.warning(`${file.name} 已经存在于列表中`)
-
-    uploadRef.value?.clear()
-    return
-  }
-  if (file.type === 'application/pdf') {
-    if (oldList.length === 0 || saveFileName.value === '') {
-      saveFileName.value = 'merged_' + file.name
-    }
-    oldList.push(file)
-    fileListRt.value = oldList
-    ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
-      name: item.name,
-      path: item.file?.path || item?.path,
-    })))
-  } else {
-    window.$message.error(`${file.name} 不是一个有效的pdf文件`)
-  }
-}
 // 选择保存的目标目录
 const selectSavedDir = function(res: any) {
   if (res) {
@@ -76,16 +43,6 @@ const selectSavedDir = function(res: any) {
     savedDir.value = res.filePaths[0]
     localStorage.setItem('saved-dir', res.filePaths[0])
   } 
-}
-
-// 移除文件
-const removeItem = function(fileData: UploadFileInfo) {
-  fileListRt.value = fileListRt.value.filter(item => item.id !== fileData.id)
-  ipcStore('file-list').set(fileListRt.value.map((item: any) => ({
-    name: item.name,
-    path: item.file?.path || item?.path,
-    id: item.id,
-  })))
 }
 
 // 合并文件（点击保存）
@@ -127,31 +84,7 @@ const openFile = debounce(function () {
   const fullPath = path.join(savedDir.value, saveFileName.value)
   if (saveFileName.value && fs.existsSync(fullPath)) shell.openPath(fullPath) // shell.showItemInFolder(fullPath)
   else window.$message.error('文件不存在')
-  // setTimeout(() => {
-  //   ipcRenderer.send('mainwin-size', {action: 'blur'})
-  // }, 500)
 }, 300)
-
-
-const drop = function (e: any) {
-  e.preventDefault
-  e.stopPropagation()
-  const files = e.dataTransfer.files
-  for (const file of files) {
-    const fileInfo = {
-      name: file.name,
-      file,
-      id: Math.random(),
-      type: file.type,
-    }
-    uploadChange({file: fileInfo})
-  }
-}
-
-const dragover = function (e: any) {
-  e.preventDefault()
-  e.stopPropagation()
-}
 
 const showAbout = function() {
   isShowAbout.value = true
@@ -202,41 +135,8 @@ const showAbout = function() {
     </div>
   </div>
 </div>
+<my-file-list v-model:saveFileName="saveFileName"  v-model:files="fileListRt"></my-file-list>
 
-<n-upload
-  class="upload-box"
-  :multiple="true"
-  accept="application/pdf"
-  @change="uploadChange"
-  ref="uploadRef"
-  directory-dnd
-  abstract
->
-
-  <div class="upload-box__outer">
-    <n-upload-trigger #="opt" abstract>
-        <div class="drager-area n-upload-trigger">
-          <ul class="file-list"  dropable @drop="drop" @dragover="dragover">
-            <template v-for="item in fileListRt" :key="item.batchId">
-              <pdf-list-item
-                :data="item"
-                @delete="removeItem"
-              >
-              </pdf-list-item>
-            </template>
-            <li>
-            <div class="upload-btn" @click="opt.handleClick">
-              <div class="upload-btn__icon">
-                <n-icon><PlusOutlined /></n-icon>
-              </div>
-              <p>添加文件</p>
-            </div>
-            </li>
-          </ul>
-        </div>
-    </n-upload-trigger>
-  </div>
-</n-upload>
 <Loading :loading="loading" text="正在保存文件..."/>
 <About v-model:show="isShowAbout" />
 </template>
@@ -326,70 +226,7 @@ body {
     }
   }
 }
-.upload-box__outer {
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100vh;
-  width: 100%;
-  padding-top: $topbar-height + $titlebar-height + 20px;
-  display: flex;
-  box-sizing: border-box;
-  background-color: #292c32;
-  flex-direction: column;
-  align-items: center;
-  flex-grow: 1;
-  :deep(.n-upload-trigger) {
-    display: flex;
-    width: 100%;
-    flex-grow: 1;
-    height: 100%;
-  }
-  .drager-area {
-    width: 100%;
-    flex: 1;
-    box-sizing: border-box;
-  }
-  .upload-btn {
-    
-    float: left;
-    margin-left: 20px;
-    color: rgba(255, 255, 255, 0.6);
-    cursor: pointer;
-    &__icon {
-      margin-top: 7px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 50px;
-      height: 50px;
-      border: 1px dashed rgba(255, 255, 255, 0.4);;
-      border-radius: 5px;
-      font-size: 30px;
-      background: rgba(255, 255, 255, 0.1);
-    }
-    p {
-      padding: 3px 0;
-      margin: 0;
-    }
-    &:hover {
-      color: #fff;
-    }
-  }
 
-  .file-list {
-    width: 100%;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    &__item {
-      float: left;
-      width: 120px;
-      margin-right: 30px;
-
-    }
-
-  }
-}
 
 
 
