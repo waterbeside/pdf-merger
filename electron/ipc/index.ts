@@ -4,6 +4,7 @@ import { mergePdf, setMainWinProgressBar } from '../utils'
 import wins from '../wins'
 import path from 'path'
 import { WIN_WIDTH, WIN_HEIGHT } from '../const'
+import fs from 'fs'
 
 export function setIpcs() {
   
@@ -22,6 +23,18 @@ export function setIpcs() {
     const fileList = await <StoredFileListItem[]>store.get('file-list')
     const savedDir = await <string>store.get('saved-dir')
     const savedPath = path.join(savedDir, fileName)
+    if (fs.existsSync(savedPath)) {
+      const btnIdx = dialog.showMessageBoxSync({
+        type: 'warning',
+        buttons: ['是', '取消'],
+        message: `${fileName}已存在，是否覆盖？`
+      })
+      if (btnIdx === 1) {
+        return {
+          status: 'cancel'
+        }
+      }
+    }
     try {
       await mergePdf(fileList, savedPath)
       setMainWinProgressBar(-1)

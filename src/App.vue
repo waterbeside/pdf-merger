@@ -11,7 +11,7 @@ import {
   } from 'naive-ui'
 import type { UploadFileInfo } from 'naive-ui'
 import SelectDirBtn from './components/SelectDirBtn/index.vue'
-import { Save20Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
+import { Merge24Filled, FolderOpen16Filled, Delete16Filled } from '@vicons/fluent'
 import { FileFilled, FolderOpenFilled } from '@vicons/antd'
 import { ref } from 'vue'
 import MessageApi from './components/MessageApi.vue'
@@ -20,6 +20,7 @@ import About from './components/About/index.vue'
 import TopbarBtn from './components/TopbarBtn/index.vue'
 import TitleBar from './components/TitleBar/index.vue'
 import MyFileList from './components/FileList/index.vue'
+import SettingContent from './components/SettingContent/index.vue'
 import fs from 'fs'
 import path from 'path'
 import { debounce } from './utils'
@@ -31,6 +32,7 @@ const savedDir = ref(defaultSavedDir || '')
 const saveFileName = ref<string>('')
 const loading = ref<boolean>(false)
 const isShowAbout = ref<boolean>(false)
+const isShowSetting = ref<boolean>(false)
 
 if (defaultSavedDir) {
   ipcStore('saved-dir').set(defaultSavedDir)
@@ -56,8 +58,16 @@ const save = debounce(function () {
     return
   }
   loading.value = true
-  ipcRenderer.invoke('merge-pdf', {fileName: saveFileName.value}).then(() => {
-    window.$message.success('保存成功')
+  ipcRenderer.invoke('merge-pdf', {fileName: saveFileName.value}).then((res) => {
+    console.log('res',res)
+    if (res.status === 'cancel') return
+    if (res.status === 'success') {
+      window.$message.success('合并成功')
+      loading.value = false
+    } else {
+      window.$message.error('合并失败')
+      loading.value = false
+    }
   }).catch(() => {
     window.$message.error('合并失败')
   }).finally(() => {
@@ -127,10 +137,10 @@ const showAbout = function() {
       <n-button type="primary" round @click="save" size="small">
         <template #icon>
           <n-icon>
-            <Save20Filled/>
+            <Merge24Filled/>
           </n-icon>
         </template>
-        保 存
+        合 并
       </n-button>
     </div>
   </div>
@@ -139,6 +149,7 @@ const showAbout = function() {
 
 <Loading :loading="loading" text="正在保存文件..."/>
 <About v-model:show="isShowAbout" />
+<SettingContent v-model:show="isShowSetting" />
 </template>
 
 <style lang="scss" scoped>
