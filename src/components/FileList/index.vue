@@ -22,13 +22,12 @@ const uploadRef = ref<UploadInst | null>(null)
 
 watch(() => props.files, (val) => {
   fileListRt.value = val
-  console.log('inwatch', val)
 }, { immediate: true })
 
 
 
 // 上传pdf文件
-const uploadChange = function(options: any) {
+const uploadChange = async function(options: any) {
   if (dragItemTarget.value) return
   const { file  } = options
   const oldList = fileListRt.value
@@ -41,9 +40,11 @@ const uploadChange = function(options: any) {
     uploadRef.value?.clear()
     return
   }
+  const settingData = await ipcStore('setting').get<SettingData>()
+  const prefix = settingData?.saveNamePrefix ?? 'merged_'
   if (file.type === 'application/pdf') {
     if (oldList.length === 0 || props.saveFileName === '') {
-      emit('update:saveFileName', 'merged_' + file.name)
+      emit('update:saveFileName', prefix + file.name)
     }
     oldList.push(file)
     fileListRt.value = oldList

@@ -17,8 +17,6 @@ const handleSelect = (key: string) => {
 // const isMaximized = ref(checkMaximized())
 const isMaximized = ref(false)
 
-console.log('isMaximized', isMaximized.value)
-
 function minisize() {
   ipcRenderer.send('mainwin-size', {action: 'minimize'})
 }
@@ -42,10 +40,10 @@ function handleDrag(pos: {x: number, y: number}){
 }
 
 const dropdownMenu = ref([
-        // {
-        //   label: '设置',
-        //   key: 'setting',
-        // },
+        {
+          label: '设置',
+          key: 'setting',
+        },
         {
           label: '关于',
           key: 'about',

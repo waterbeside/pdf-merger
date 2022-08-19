@@ -10,3 +10,9 @@ declare module '*.vue' {
 declare interface Window {
   $message: any
 }
+
+
+interface SettingData {
+  saveNamePrefix: string
+  [key: string]: any
+}

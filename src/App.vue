@@ -26,17 +26,16 @@ import path from 'path'
 import { debounce } from './utils'
 
 const fileListRt = ref<UploadFileInfo[]>([])
-const defaultSavedDir = localStorage.getItem('saved-dir')
-const savedDir = ref(defaultSavedDir || '')
+const savedDir = ref('')
 
 const saveFileName = ref<string>('')
 const loading = ref<boolean>(false)
 const isShowAbout = ref<boolean>(false)
 const isShowSetting = ref<boolean>(false)
 
-if (defaultSavedDir) {
-  ipcStore('saved-dir').set(defaultSavedDir)
-}
+ipcStore('saved-dir').get().then(dir => {
+  savedDir.value = dir
+})
 
 // 选择保存的目标目录
 const selectSavedDir = function(res: any) {
@@ -59,7 +58,6 @@ const save = debounce(function () {
   }
   loading.value = true
   ipcRenderer.invoke('merge-pdf', {fileName: saveFileName.value}).then((res) => {
-    console.log('res',res)
     if (res.status === 'cancel') return
     if (res.status === 'success') {
       window.$message.success('合并成功')
@@ -106,7 +104,7 @@ const showAbout = function() {
 <n-message-provider>
   <MessageApi/>
 </n-message-provider>
-<title-bar @click-about="showAbout"></title-bar>
+<title-bar @click-about="showAbout" @click-setting="()=> { isShowSetting = true }"></title-bar>
 <div class="top-bar">
   <div class="top-bar__left">
     <div class="saved-dir">
