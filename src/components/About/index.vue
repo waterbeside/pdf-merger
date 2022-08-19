@@ -3,7 +3,6 @@ import { NModal, NIcon } from 'naive-ui'
 import { ref, defineProps, defineEmits, watch } from 'vue'
 import { ipcRenderer } from 'electron'
 import { GithubFilled } from '@vicons/antd'
-import pkg from '../../../package.json'
 
 const props = defineProps({
   show: {
@@ -15,7 +14,6 @@ const props = defineProps({
 const emit = defineEmits(['update:show'])
 
 const showModal = ref<boolean>(props.show)
-const version = ref<string>(pkg.version)
 
 watch(showModal, (val) => {
   emit('update:show', val)
@@ -30,6 +28,8 @@ ipcRenderer.on('show-about', () => {
   emit('update:show', true)
 })
 
+const appinfo = ref<{version: string, name: string}>(ipcRenderer.sendSync('get-appinfo'))
+
 </script>
 
 <template>
@@ -38,7 +38,7 @@ ipcRenderer.on('show-about', () => {
     <div>关于</div>
   </template>
   <div class="content">
-    <p>PDF-Merger @{{version}}</p>
+    <p>{{appinfo.name}} @{{appinfo.version}}</p>
     <p>
       <n-icon class="icon">
         <GithubFilled />

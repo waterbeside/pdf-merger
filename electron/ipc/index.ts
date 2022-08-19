@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron'
+import { dialog, ipcMain, app } from 'electron'
 import { store } from './setIpcStore'
 import { mergePdf, setMainWinProgressBar } from '../utils'
 import wins from '../wins'
@@ -83,5 +83,13 @@ export function setIpcs() {
       height: WIN_HEIGHT
     }
     wins.mainwin && wins.mainwin.setBounds(bounds)
+  })
+
+  ipcMain.on('get-appinfo', async (e: any, setting: any) => {
+    const data = {
+      version: app.getVersion(),
+      name: app.getName(),
+    }
+    e.returnValue = data
   })
 }
