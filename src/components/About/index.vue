@@ -35,7 +35,7 @@ ipcRenderer.on('show-about', () => {
 <template>
 <n-modal v-model:show="showModal" preset="dialog" title="Dialog" :show-icon="false">
   <template #header>
-    <div>About</div>
+    <div>关于</div>
   </template>
   <div class="content">
     <p>PDF-Merger @{{version}}</p>
