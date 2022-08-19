@@ -1,23 +1,21 @@
 import { ipcRenderer } from 'electron'
 
 interface IpcStoreReturn {
-  get: () => Promise<any>
+  get: <T = any>() => Promise<T>
   set: (value?: any) => any
   del: () => any
 }
 
 function ipcStore(key: string): IpcStoreReturn {
   if (!ipcRenderer) {
-    console.log('no ipcRenderer')
     return {
-      get: () => Promise.reject(false),
+      get: <T = any>() => Promise.reject<T>(false),
       set: () => false,
       del: () => false
     }
   }
   return {
     get() {
-      console.log('test get', key)
       return new Promise((resolve, reject) => {
         ipcRenderer
           .invoke('store:get', key)
