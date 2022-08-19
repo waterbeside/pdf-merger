@@ -15,7 +15,6 @@
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
-    "icon": "./src/assets/logo@350.png",
     "target": [
       "dmg"
     ]
