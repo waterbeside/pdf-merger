@@ -3,6 +3,9 @@
  */
 {
   "appId": "com.github.waterbeside.pdf-merger",
+  "electronDownload": {
+    "mirror": "https://npm.taobao.org/mirrors/electron/"
+  },
   "asar": true,
   "directories": {
     "output": "release"
