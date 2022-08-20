@@ -15,13 +15,13 @@
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
-    "icon": "./src/assets/logo@350.png",
+    "icon": "./src/assets/logo@512.png",
     "target": [
       "dmg"
     ]
   },
   "win": {
-    "icon": "./src/assets/logo@350.png",
+    "icon": "./src/assets/logo@512.png",
     "target": [
       {
         "target": "nsis",
