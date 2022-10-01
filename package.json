@@ -41,7 +41,7 @@
   "dependencies": {
     "@vicons/antd": "^0.12.0",
     "@vicons/fluent": "^0.12.0",
-    "naive-ui": "^2.32.1",
+    "naive-ui": "^2.33.3",
     "pdf-lib": "^1.17.1",
     "tslib": "^2.4.0"
   }
