@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
-    "cli-truncate": "^2.1.0",
+    "cli-truncate": "^4.0.0",
     "electron": "^19.0.12",
     "electron-builder": "^23.1.0",
     "electron-store": "^8.1.0",
